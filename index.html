@@ -24,9 +24,13 @@
             margin-bottom: 20px;
             border: 1px solid #2d323f;
         }
+        .admin-section {
+            display: none;
+            border: 1px dashed #00adb5;
+        }
         textarea {
             width: 100%;
-            height: 150px;
+            height: 120px;
             background-color: #12141c;
             color: #00ff66;
             border: 1px solid #2d323f;
@@ -36,19 +40,28 @@
             resize: vertical;
             box-sizing: border-box;
         }
+        input[type="password"] {
+            background-color: #12141c;
+            color: white;
+            border: 1px solid #2d323f;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            width: 200px;
+        }
         button {
             background-color: #00adb5;
             color: white;
             border: none;
-            padding: 12px 20px;
-            font-size: 16px;
+            padding: 10px 20px;
+            font-size: 14px;
             border-radius: 4px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
             font-weight: bold;
         }
         button:hover { background-color: #008c95; }
+        .btn-danger { background-color: #ff4a4a; }
+        .btn-danger:hover { background-color: #d93838; }
         .tables-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -83,6 +96,10 @@
         }
         .text-red { color: #ff4a4a; font-weight: bold; }
         .text-green { color: #00ff66; font-weight: bold; }
+        .footer-admin {
+            text-align: right;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -90,10 +107,14 @@
 <div class="container">
     <h1>📊 Painel de Controle de Materiais</h1>
     
-    <div class="box">
-        <h3>1. Cole os Logs Completos da Organização Abaixo</h3>
-        <textarea id="logInput" placeholder="Cole todas as linhas copiadas do jogo ou do painel de controle aqui..."></textarea>
-        <button onclick="processarLogs()">Processar e Atualizar Dashboard</button>
+    <!-- Painel de Administração Oculto por padrão -->
+    <div id="adminPanel" class="box admin-section">
+        <h3>🔑 Painel do Líder (Inserir Dados)</h3>
+        <textarea id="logInput" placeholder="Cole os novos logs aqui para somar ao banco de dados existente..."></textarea>
+        <div style="margin-top: 10px; display: flex; gap: 10px;">
+            <button onclick="processarLogs()">Adicionar Logs ao Painel</button>
+            <button onclick="limparDados()" class="btn-danger">Zerar Todo o Painel</button>
+        </div>
     </div>
 
     <div class="tables-container">
@@ -109,7 +130,7 @@
                     </tr>
                 </thead>
                 <tbody id="rankingEntregas">
-                    <tr><td colspan="3" style="text-align: center; color: #888;">Aguardando dados...</td></tr>
+                    <tr><td colspan="3" style="text-align: center; color: #888;">Nenhum material registrado.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -125,28 +146,52 @@
                     </tr>
                 </thead>
                 <tbody id="rankingRetiradas">
-                    <tr><td colspan="2" style="text-align: center; color: #888;">Aguardando dados...</td></tr>
+                    <tr><td colspan="2" style="text-align: center; color: #888;">Nenhuma retirada registrada.</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- Botão discreto no rodapé para o líder abrir as configurações -->
+    <div class="footer-admin">
+        <input type="password" id="senhaAdmin" placeholder="Senha do Líder">
+        <button onclick="verificarSenha()">Acessar Modo Admin</button>
+    </div>
 </div>
 
 <script>
+// 🔑 Senha atualizada conforme solicitado
+const SENHA_CORRETA = "1407"; 
+
+const META = 25000;
+
+// Carrega os dados salvos automaticamente quando a página abre
+window.onload = function() {
+    renderizarTabelas();
+};
+
+function verificarSenha() {
+    const senhaDigitada = document.getElementById('senhaAdmin').value;
+    if (senhaDigitada === SENHA_CORRETA) {
+        document.getElementById('adminPanel').style.display = 'block';
+        alert('Modo Administrador liberado!');
+    } else {
+        alert('Senha incorreta!');
+    }
+}
+
 function processarLogs() {
     const text = document.getElementById('logInput').value;
     const lines = text.split('\n');
     
-    const entregas = {};
-    const retiradas = {};
-    const META = 25000;
+    // Puxa o que já estava salvo ou cria um objeto vazio
+    let entregas = JSON.parse(localStorage.getItem('entregas')) || {};
+    let retiradas = JSON.parse(localStorage.getItem('retiradas')) || {};
 
-    // Expressões regulares para mapear corretamente "entregou" e "usou"
     const regexEntregou = /\|\s*([\w]+)\s+entregou\s+(\d+)/i;
     const regexUsou = /\|\s*([\w]+)\s+usou\s+(\d+)/i;
 
     lines.forEach(line => {
-        // Testa se a linha é de entrega
         const matchEntrega = line.match(regexEntregou);
         if (matchEntrega) {
             const player = matchEntrega[1];
@@ -154,7 +199,6 @@ function processarLogs() {
             entregas[player] = (entregas[player] || 0) + amount;
         }
 
-        // Testa se a linha é de retirada
         const matchUsou = line.match(regexUsou);
         if (matchUsou) {
             const player = matchUsou[1];
@@ -163,13 +207,26 @@ function processarLogs() {
         }
     });
 
-    // Atualiza tabela de Entregas
+    // Salva permanentemente no navegador
+    localStorage.setItem('entregas', JSON.stringify(entregas));
+    localStorage.setItem('retiradas', JSON.stringify(retiradas));
+
+    document.getElementById('logInput').value = '';
+    renderizarTabelas();
+    alert('Logs processados e salvos com sucesso!');
+}
+
+function renderizarTabelas() {
+    const entregas = JSON.parse(localStorage.getItem('entregas')) || {};
+    const retiradas = JSON.parse(localStorage.getItem('retiradas')) || {};
+
+    // Atualiza Entregas
     const tbodyEntregas = document.getElementById('rankingEntregas');
     tbodyEntregas.innerHTML = '';
     const sortedEntregas = Object.entries(entregas).sort((a, b) => b[1] - a[1]);
 
     if (sortedEntregas.length === 0) {
-        tbodyEntregas.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #888;">Nenhuma entrega encontrada.</td></tr>`;
+        tbodyEntregas.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #888;">Nenhum material registrado.</td></tr>`;
     } else {
         sortedEntregas.forEach(([name, total]) => {
             const percentage = Math.min((total / META) * 100, 100).toFixed(1);
@@ -190,13 +247,13 @@ function processarLogs() {
         });
     }
 
-    // Atualiza tabela de Retiradas
+    // Atualiza Retiradas
     const tbodyRetiradas = document.getElementById('rankingRetiradas');
     tbodyRetiradas.innerHTML = '';
     const sortedRetiradas = Object.entries(retiradas).sort((a, b) => b[1] - a[1]);
 
     if (sortedRetiradas.length === 0) {
-        tbodyRetiradas.innerHTML = `<tr><td colspan="2" style="text-align: center; color: #888;">Nenhuma retirada encontrada.</td></tr>`;
+        tbodyRetiradas.innerHTML = `<tr><td colspan="2" style="text-align: center; color: #888;">Nenhuma retirada registrada.</td></tr>`;
     } else {
         sortedRetiradas.forEach(([name, total]) => {
             const row = document.createElement('tr');
@@ -206,6 +263,14 @@ function processarLogs() {
             `;
             tbodyRetiradas.appendChild(row);
         });
+    }
+}
+
+function limparDados() {
+    if (confirm('Tem certeza que deseja apagar todo o histórico de materiais do painel?')) {
+        localStorage.clear();
+        renderizarTabelas();
+        alert('Painel zerado!');
     }
 }
 </script>
