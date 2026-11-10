@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard da Organização</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #12141c;
+            color: #e1e1e6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 { color: #00adb5; text-align: center; margin-bottom: 30px; }
+        .box {
+            background-color: #1e222b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #2d323f;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #12141c;
+            color: #00ff66;
+            border: 1px solid #2d323f;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #00adb5;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        button:hover { background-color: #008c95; }
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .tables-container { grid-template-columns: 1fr; }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2d323f;
+        }
+        th { background-color: #252a34; color: #00adb5; }
+        .meta-bar-bg {
+            background-color: #12141c;
+            border-radius: 4px;
+            width: 100%;
+            height: 18px;
+            overflow: hidden;
+        }
+        .meta-bar-fill {
+            background-color: #00ff66;
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .text-red { color: #ff4a4a; font-weight: bold; }
+        .text-green { color: #00ff66; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 Painel de Controle de Materiais</h1>
+    
+    <div class="box">
+        <h3>1. Cole os Logs Completos da Organização Abaixo</h3>
+        <textarea id="logInput" placeholder="Cole todas as linhas copiadas do jogo ou do painel de controle aqui..."></textarea>
+        <button onclick="processarLogs()">Processar e Atualizar Dashboard</button>
+    </div>
+
+    <div class="tables-container">
+        <!-- Tabela de Entregas -->
+        <div class="box">
+            <h3>📥 Ranking de Entregas (Meta: 25k)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jogador</th>
+                        <th>Total Entregue</th>
+                        <th>Progresso</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingEntregas">
+                    <tr><td colspan="3" style="text-align: center; color: #888;">Aguardando dados...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tabela de Retiradas -->
+        <div class="box">
+            <h3>📤 Registro de Retiradas (Quem Usou)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jogador</th>
+                        <th>Total Retirado</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingRetiradas">
+                    <tr><td colspan="2" style="text-align: center; color: #888;">Aguardando dados...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function processarLogs() {
+    const text = document.getElementById('logInput').value;
+    const lines = text.split('\n');
+    
+    const entregas = {};
+    const retiradas = {};
+    const META = 25000;
+
+    // Expressões regulares para mapear corretamente "entregou" e "usou"
+    const regexEntregou = /\|\s*([\w]+)\s+entregou\s+(\d+)/i;
+    const regexUsou = /\|\s*([\w]+)\s+usou\s+(\d+)/i;
+
+    lines.forEach(line => {
+        // Testa se a linha é de entrega
+        const matchEntrega = line.match(regexEntregou);
+        if (matchEntrega) {
+            const player = matchEntrega[1];
+            const amount = parseInt(matchEntrega[2], 10);
+            entregas[player] = (entregas[player] || 0) + amount;
+        }
+
+        // Testa se a linha é de retirada
+        const matchUsou = line.match(regexUsou);
+        if (matchUsou) {
+            const player = matchUsou[1];
+            const amount = parseInt(matchUsou[2], 10);
+            retiradas[player] = (retiradas[player] || 0) + amount;
+        }
+    });
+
+    // Atualiza tabela de Entregas
+    const tbodyEntregas = document.getElementById('rankingEntregas');
+    tbodyEntregas.innerHTML = '';
+    const sortedEntregas = Object.entries(entregas).sort((a, b) => b[1] - a[1]);
+
+    if (sortedEntregas.length === 0) {
+        tbodyEntregas.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #888;">Nenhuma entrega encontrada.</td></tr>`;
+    } else {
+        sortedEntregas.forEach(([name, total]) => {
+            const percentage = Math.min((total / META) * 100, 100).toFixed(1);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${name}</strong></td>
+                <td class="text-green">${total.toLocaleString('pt-BR')} und</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="meta-bar-bg" style="flex-grow: 1;">
+                            <div class="meta-bar-fill" style="width: ${percentage}%;"></div>
+                        </div>
+                        <span style="font-size: 11px; min-width: 35px;">${percentage}%</span>
+                    </div>
+                </td>
+            `;
+            tbodyEntregas.appendChild(row);
+        });
+    }
+
+    // Atualiza tabela de Retiradas
+    const tbodyRetiradas = document.getElementById('rankingRetiradas');
+    tbodyRetiradas.innerHTML = '';
+    const sortedRetiradas = Object.entries(retiradas).sort((a, b) => b[1] - a[1]);
+
+    if (sortedRetiradas.length === 0) {
+        tbodyRetiradas.innerHTML = `<tr><td colspan="2" style="text-align: center; color: #888;">Nenhuma retirada encontrada.</td></tr>`;
+    } else {
+        sortedRetiradas.forEach(([name, total]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${name}</strong></td>
+                <td class="text-red">${total.toLocaleString('pt-BR')} und</td>
+            `;
+            tbodyRetiradas.appendChild(row);
+        });
+    }
+}
+</script>
+
+</body>
+</html>
