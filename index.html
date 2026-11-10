@@ -107,13 +107,12 @@
 <div class="container">
     <h1>📊 Painel de Controle de Materiais</h1>
     
-    <!-- Painel de Administração Oculto por padrão -->
     <div id="adminPanel" class="box admin-section">
         <h3>🔑 Painel do Líder (Inserir Dados)</h3>
-        <textarea id="logInput" placeholder="Cole os novos logs aqui para somar ao banco de dados existente..."></textarea>
-        <div style="margin-top: 10px; display: flex; gap: 10px;">
-            <button onclick="processarLogs()">Adicionar Logs ao Painel</button>
-            <button onclick="limparDados()" class="btn-danger">Zerar Todo o Painel</button>
+        <p style="font-size: 13px; color: #aaa;">Cole novos logs para recalcular e gerar um novo bloco de dados fixo para atualizar o código.</p>
+        <textarea id="logInput" placeholder="Cole os novos logs aqui..."></textarea>
+        <div style="margin-top: 10px;">
+            <button onclick="processarLogs()">Gerar Novo Bloco de Código</button>
         </div>
     </div>
 
@@ -129,9 +128,7 @@
                         <th>Progresso</th>
                     </tr>
                 </thead>
-                <tbody id="rankingEntregas">
-                    <tr><td colspan="3" style="text-align: center; color: #888;">Nenhum material registrado.</td></tr>
-                </tbody>
+                <tbody id="rankingEntregas"></tbody>
             </table>
         </div>
 
@@ -145,14 +142,11 @@
                         <th>Total Retirado</th>
                     </tr>
                 </thead>
-                <tbody id="rankingRetiradas">
-                    <tr><td colspan="2" style="text-align: center; color: #888;">Nenhuma retirada registrada.</td></tr>
-                </tbody>
+                <tbody id="rankingRetiradas"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- Botão discreto no rodapé para o líder abrir as configurações -->
     <div class="footer-admin">
         <input type="password" id="senhaAdmin" placeholder="Senha do Líder">
         <button onclick="verificarSenha()">Acessar Modo Admin</button>
@@ -160,19 +154,21 @@
 </div>
 
 <script>
-// 🔑 Senha atualizada conforme solicitado
 const SENHA_CORRETA = "1407"; 
-
 const META = 25000;
 
-// Carrega os dados salvos automaticamente quando a página abre
+// 💾 DADOS FIXOS SALVOS NA NUVEM (Atualizado hoje)
+const BANCO_DADOS = {
+    entregas: {"_DG_": 23961, "jasintox": 17997, "LOPERAS": 15000, "ruts_kailer": 7219},
+    retiradas: {"LOPERAS": 11000, "_DG_": 1820}
+};
+
 window.onload = function() {
-    renderizarTabelas();
+    renderizarTabelas(BANCO_DADOS.entregas, BANCO_DADOS.retiradas);
 };
 
 function verificarSenha() {
-    const senhaDigitada = document.getElementById('senhaAdmin').value;
-    if (senhaDigitada === SENHA_CORRETA) {
+    if (document.getElementById('senhaAdmin').value === SENHA_CORRETA) {
         document.getElementById('adminPanel').style.display = 'block';
         alert('Modo Administrador liberado!');
     } else {
@@ -184,96 +180,40 @@ function processarLogs() {
     const text = document.getElementById('logInput').value;
     const lines = text.split('\n');
     
-    // Puxa o que já estava salvo ou cria um objeto vazio
-    let entregas = JSON.parse(localStorage.getItem('entregas')) || {};
-    let retiradas = JSON.parse(localStorage.getItem('retiradas')) || {};
+    let e = {...BANCO_DADOS.entregas};
+    let r = {...BANCO_DADOS.retiradas};
 
     const regexEntregou = /\|\s*([\w]+)\s+entregou\s+(\d+)/i;
     const regexUsou = /\|\s*([\w]+)\s+usou\s+(\d+)/i;
 
     lines.forEach(line => {
-        const matchEntrega = line.match(regexEntregou);
-        if (matchEntrega) {
-            const player = matchEntrega[1];
-            const amount = parseInt(matchEntrega[2], 10);
-            entregas[player] = (entregas[player] || 0) + amount;
-        }
-
-        const matchUsou = line.match(regexUsou);
-        if (matchUsou) {
-            const player = matchUsou[1];
-            const amount = parseInt(matchUsou[2], 10);
-            retiradas[player] = (retiradas[player] || 0) + amount;
-        }
+        const mE = line.match(regexEntregou);
+        if (mE) e[mE[1]] = (e[mE[1]] || 0) + parseInt(mE[2], 10);
+        const mU = line.match(regexUsou);
+        if (mU) r[mU[1]] = (r[mU[1]] || 0) + parseInt(mU[2], 10);
     });
 
-    // Salva permanentemente no navegador
-    localStorage.setItem('entregas', JSON.stringify(entregas));
-    localStorage.setItem('retiradas', JSON.stringify(retiradas));
-
-    document.getElementById('logInput').value = '';
-    renderizarTabelas();
-    alert('Logs processados e salvos com sucesso!');
+    console.log("Novo BANCO_DADOS para substituir no código:");
+    console.log(JSON.stringify({entregas: e, retiradas: r}));
+    
+    renderizarTabelas(e, r);
+    alert('Novos totais gerados na tela! Copie os novos objetos gerados no console do navegador para fixar no código do GitHub.');
 }
 
-function renderizarTabelas() {
-    const entregas = JSON.parse(localStorage.getItem('entregas')) || {};
-    const retiradas = JSON.parse(localStorage.getItem('retiradas')) || {};
+function renderizarTabelas(entregas, retiradas) {
+    const tE = document.getElementById('rankingEntregas');
+    tE.innerHTML = '';
+    Object.entries(entregas).sort((a,b)=>b[1]-a[1]).forEach(([name,total]) => {
+        const p = Math.min((total/META)*100, 100).toFixed(1);
+        tE.innerHTML += `<tr><td><strong>${name}</strong></td><td class="text-green">${total.toLocaleString('pt-BR')} und</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="meta-bar-bg" style="flex-grow:1;"><div class="meta-bar-fill" style="width:${p}%;"></div></div><span style="font-size:11px;min-width:35px;">${p}%</span></div></td></tr>`;
+    });
 
-    // Atualiza Entregas
-    const tbodyEntregas = document.getElementById('rankingEntregas');
-    tbodyEntregas.innerHTML = '';
-    const sortedEntregas = Object.entries(entregas).sort((a, b) => b[1] - a[1]);
-
-    if (sortedEntregas.length === 0) {
-        tbodyEntregas.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #888;">Nenhum material registrado.</td></tr>`;
-    } else {
-        sortedEntregas.forEach(([name, total]) => {
-            const percentage = Math.min((total / META) * 100, 100).toFixed(1);
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><strong>${name}</strong></td>
-                <td class="text-green">${total.toLocaleString('pt-BR')} und</td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <div class="meta-bar-bg" style="flex-grow: 1;">
-                            <div class="meta-bar-fill" style="width: ${percentage}%;"></div>
-                        </div>
-                        <span style="font-size: 11px; min-width: 35px;">${percentage}%</span>
-                    </div>
-                </td>
-            `;
-            tbodyEntregas.appendChild(row);
-        });
-    }
-
-    // Atualiza Retiradas
-    const tbodyRetiradas = document.getElementById('rankingRetiradas');
-    tbodyRetiradas.innerHTML = '';
-    const sortedRetiradas = Object.entries(retiradas).sort((a, b) => b[1] - a[1]);
-
-    if (sortedRetiradas.length === 0) {
-        tbodyRetiradas.innerHTML = `<tr><td colspan="2" style="text-align: center; color: #888;">Nenhuma retirada registrada.</td></tr>`;
-    } else {
-        sortedRetiradas.forEach(([name, total]) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><strong>${name}</strong></td>
-                <td class="text-red">${total.toLocaleString('pt-BR')} und</td>
-            `;
-            tbodyRetiradas.appendChild(row);
-        });
-    }
-}
-
-function limparDados() {
-    if (confirm('Tem certeza que deseja apagar todo o histórico de materiais do painel?')) {
-        localStorage.clear();
-        renderizarTabelas();
-        alert('Painel zerado!');
-    }
+    const tR = document.getElementById('rankingRetiradas');
+    tR.innerHTML = '';
+    Object.entries(retiradas).sort((a,b)=>b[1]-a[1]).forEach(([name,total]) => {
+        tR.innerHTML += `<tr><td><strong>${name}</strong></td><td class="text-red">${total.toLocaleString('pt-BR')} und</td></tr>`;
+    });
 }
 </script>
-
 </body>
 </html>
