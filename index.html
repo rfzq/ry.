@@ -1,22 +1,655 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para Ysabella ❤️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>pro meu lov 💙</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: #ffe6e9;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #050b14;
+            background-image: 
+                radial-gradient(circle at 20% 25%, rgba(14, 116, 144, 0.3) 0%, transparent 45%),
+                radial-gradient(circle at 80% 75%, rgba(37, 99, 235, 0.2) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(30, 58, 138, 0.2) 0%, transparent 60%);
+            color: #e0f2fe;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background-image: 
+                radial-gradient(1.5px 1.5px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #38bdf8, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #bae6fd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 150px 120px, #60a5fa, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 250px 250px;
+            opacity: 0.6;
+            z-index: 1;
+            will-change: transform;
+            animation: moverFundo 60s linear infinite;
+        }
+
+        @keyframes moverFundo {
+            from { transform: translateY(0); }
+            to { transform: translateY(-250px); }
+        }
+
+        /* --- TELA DE SENHA --- */
+        #telaSenha {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #050b14;
+            z-index: 999;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
             padding: 20px;
+            text-align: center;
+            transition: opacity 0.8s ease;
+        }
+
+        .senha-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            padding: 30px 20px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .senha-titulo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #f0f9ff;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .senha-sub {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .senha-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 14px;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            margin-bottom: 15px;
+            font-family: 'Montserrat', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .senha-input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .erro-senha {
+            color: #f87171;
+            font-size: 0.75rem;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .main-container {
+            max-width: 440px;
+            width: 95%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 10;
+            padding-bottom: 40px;
+        }
+
+        canvas {
+            display: block;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.5));
+            will-change: transform;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 1.5s ease, transform 1.5s ease;
+        }
+
+        canvas.visivel {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .btn-acao {
+            position: relative;
+            background: linear-gradient(135deg, rgba(14, 116, 144, 0.3), rgba(37, 99, 235, 0.2));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #e0f2fe;
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            padding: 16px 36px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            overflow: hidden;
+            will-change: transform;
+            animation: pulsarBotao 2.5s infinite ease-in-out;
+            text-decoration: none;
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 1.5s ease, transform 1.5s ease;
+        }
+
+        .btn-acao.visivel {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes pulsarBotao {
+            0%, 100% {
+                box-shadow: 0 0 15px rgba(14, 116, 144, 0.3), 0 0 30px rgba(37, 99, 235, 0.2);
+                border-color: rgba(56, 189, 248, 0.4);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(56, 189, 248, 0.6), 0 0 45px rgba(147, 197, 253, 0.5);
+                border-color: rgba(147, 197, 253, 0.8);
+                transform: scale(1.02);
+            }
+        }
+
+        .escondido {
+            display: none !important;
+        }
+
+        .visivel-flex {
+            display: block !important;
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .texto-container {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #f0f9ff;
+            font-style: italic;
+            min-height: 120px;
+            display: none;
+            padding: 0 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+            margin-bottom: 20px;
+        }
+
+        .texto-container.ativo {
+            display: block;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cursor {
+            display: inline-block;
+            color: #38bdf8;
+            font-weight: bold;
+            animation: piscar 0.8s infinite;
+        }
+
+        @keyframes piscar {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* --- CONTADOR --- */
+        .contador-container {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            padding: 16px 24px;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            margin-bottom: 15px;
+        }
+
+        .contador-container.visivel {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .contador-titulo {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #38bdf8;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .timer-texto {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+        }
+
+        /* --- LINHA DO TEMPO --- */
+        .timeline-container {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .timeline-container.visivel {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 16px;
+            border-left: 2px solid rgba(56, 189, 248, 0.4);
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -5px;
+            top: 2px;
+            width: 8px;
+            height: 8px;
+            background-color: #38bdf8;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #38bdf8;
+        }
+
+        .timeline-date {
+            font-size: 0.75rem;
+            color: #38bdf8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .timeline-text {
+            font-size: 0.9rem;
+            color: #e0f2fe;
+            line-height: 1.4;
+        }
+
+        /* --- BOTÃO SPOTIFY FINAL --- */
+        .spotify-container {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .spotify-container.visivel {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .coracao-caindo {
+            position: fixed;
+            top: -30px;
+            font-size: 22px;
+            user-select: none;
+            pointer-events: none;
+            z-index: 100;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
+            will-change: transform;
+            animation: cair 3.5s linear forwards;
+        }
+
+        @keyframes cair {
+            0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(360deg) scale(1.2); opacity: 0; }
+        }
+
+        /* --- ESTRELA CADENTE DA INTRODUÇÃO --- */
+        .estrela-cadente {
+            position: fixed;
+            top: -20px;
+            font-size: 18px;
+            user-select: none;
+            pointer-events: none;
+            z-index: 100;
+            filter: drop-shadow(0 0 6px #38bdf8);
+            animation: estrelaCair 2.5s linear forwards;
+        }
+
+        @keyframes estrelaCair {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-180px, 105vh) rotate(45deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stars"></div>
+
+    <!-- TELA DE SENHA -->
+    <div id="telaSenha">
+        <div class="senha-card">
+            <div class="senha-titulo">espaço secreto 💙</div>
+            <div class="senha-sub">digite a data do pedido (DDMMAAAA) ou a senha secreta</div>
+            <input type="password" id="inputSenha" class="senha-input" placeholder="sua senha">
+            <div id="erroSenha" class="erro-senha">senha incorreta, tenta de novo!</div>
+            <button class="btn-acao visivel" style="width: 100%; margin-bottom: 0;" onclick="verificarSenha()">entrar</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <canvas id="heartCanvas"></canvas>
+
+        <!-- PRIMEIRO BOTÃO (Suspense) -->
+        <button id="btnPrimeiro" class="btn-acao">aperta aqui</button>
+
+        <!-- SEGUNDO BOTÃO (Revela o texto) -->
+        <button id="btnSegundo" class="btn-acao escondido">aqui tmb amoreco</button>
+
+        <div class="texto-container" id="textoContainer">
+            <span id="textoDatilografado"></span><span class="cursor">|</span>
+        </div>
+
+        <!-- CONTADOR -->
+        <div class="contador-container" id="contador">
+            <div class="contador-titulo">Juntos há exatos</div>
+            <div class="timer-texto" id="timer">0 dias 00h 00m 00s</div>
+        </div>
+
+        <!-- LINHA DO TEMPO -->
+        <div class="timeline-container" id="timeline">
+            <div class="contador-titulo" style="margin-bottom: 14px; text-align: center;">nossa linha do tmp</div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">22 de Maio</div>
+                <div class="timeline-text">o dia em que eu te "conheci"</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">2 de Dezembro</div>
+                <div class="timeline-text">o dia em que eu me declarei pra você</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">14 de Dezembro</div>
+                <div class="timeline-text">o pedido de namoro</div>
+            </div>
+        </div>
+
+        <!-- BOTÃO DA PLAYLIST DO SPOTIFY -->
+        <div class="spotify-container" id="spotifyContainer">
+            <a href="https://open.spotify.com/playlist/4lvqeZBe2DXg4ycHktsYtu?si=toRESq6sRTuqgAc8ra7_IA&utm_source=native-share-menu&pi=7wQnYbrHRdS6W" target="_blank" class="btn-acao visivel" style="opacity: 1; transform: translateY(0); width: 100%;">
+                dedicada pra você bb linda
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Defina a senha aqui (por padrão deixei a data do pedido: 14122025 ou você pode trocar)
+        const SENHA_SECRETA = "14122025";
+
+        function verificarSenha() {
+            const digitada = document.getElementById('inputSenha').value;
+            const erro = document.getElementById('erroSenha');
+            const tela = document.getElementById('telaSenha');
+
+            if (digitada === SENHA_SECRETA) {
+                tela.style.opacity = '0';
+                setTimeout(() => {
+                    tela.style.display = 'none';
+                    iniciarIntro();
+                    renderHeart();
+                }, 800);
+            } else {
+                erro.style.display = 'block';
+                document.getElementById('inputSenha').value = '';
+            }
+        }
+
+        // Permitir apertar Enter para enviar a senha
+        document.getElementById('inputSenha').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verificarSenha();
+            }
+        });
+
+        const NOME_DELA = "Ysabella";
+        const dataInicio = new Date(2025, 11, 14); // Mês 11 = Dezembro (0 a 11)
+        const mensagem = "Meu amor, eu admiro a garota incrível que você é, você me encanta muito, seu jeito, seu cabelo, sua risada, tudo em ti me encanta muito, e eu sou completamente apaixonado por você, você é o meu sonho, meu amor, o meu refúgio, a minha garota, minha labubu, eu amo te amar, te amar me faz bem, me deixa alegre, me faz querer viver!, é uma coisa tão boa, eu te amo, eu te quero, eu te vivo!, eu te entendo, eu te respeito, eu te lobo 💙.";
+
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d', { alpha: true });
+        let step = 0;
+
+        function ajustarCanvas() {
+            canvas.width = Math.min(window.innerWidth - 40, 360);
+            canvas.height = 280;
+        }
+
+        function renderHeart() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2 - 10;
+            
+            const pulso = Math.sin(step * 3) * 0.08 + Math.sin(step * 6) * 0.03;
+            const baseScale = (Math.min(canvas.width, canvas.height) / 38);
+            const scale = baseScale * (1.05 + pulso);
+
+            const totalNomes = 55; 
+            ctx.font = "bold 10px 'Montserrat', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            for (let i = 0; i < totalNomes; i++) {
+                const t = ((i / totalNomes) + step * 0.02) * Math.PI * 2;
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+
+                const posX = centerX + x * scale;
+                const posY = centerY + y * scale;
+
+                const wave = Math.sin(t * 3 - step * 4);
+                const alpha = 0.5 + (wave + 1) * 0.25; 
+
+                ctx.fillStyle = (i % 2 === 0) 
+                    ? `rgba(56, 189, 248, ${alpha})` 
+                    : `rgba(147, 197, 253, ${alpha})`;
+
+                ctx.save();
+                ctx.translate(posX, posY);
+                const sizePulse = 1 + wave * 0.1;
+                ctx.scale(sizePulse, sizePulse);
+                ctx.fillText(NOME_DELA, 0, 0);
+                ctx.restore();
+            }
+
+            step += 0.015;
+            requestAnimationFrame(renderHeart);
+        }
+
+        function iniciarIntro() {
+            ajustarCanvas();
+            for (let i = 0; i < 18; i++) {
+                setTimeout(() => {
+                    const estrela = document.createElement('div');
+                    estrela.className = 'estrela-cadente';
+                    estrela.innerText = '🌠';
+                    estrela.style.left = (Math.random() * 85 + 10) + 'vw';
+                    document.body.appendChild(estrela);
+
+                    setTimeout(() => estrela.remove(), 2500);
+                }, i * 180);
+            }
+
+            setTimeout(() => {
+                canvas.classList.add('visivel');
+                document.getElementById('btnPrimeiro').classList.add('visivel');
+            }, 2200);
+        }
+
+        let indexTexto = 0;
+        const elementoTexto = document.getElementById('textoDatilografado');
+
+        function digitarTexto() {
+            if (indexTexto < mensagem.length) {
+                elementoTexto.textContent += mensagem.charAt(indexTexto);
+                indexTexto++;
+                setTimeout(digitarTexto, 60);
+            } else {
+                document.querySelector('.cursor').style.display = 'none';
+                document.getElementById('contador').classList.add('visivel');
+                document.getElementById('timeline').classList.add('visivel');
+                document.getElementById('spotifyContainer').classList.add('visivel');
+            }
+        }
+
+        function tocarSomMagico() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const audioCtx = new AudioContext();
+                const notas = [523.25, 659.25, 783.99, 1046.50]; 
+
+                notas.forEach((freq, index) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime + index * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + index * 0.08 + 0.6);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(audioCtx.currentTime + index * 0.08);
+                    osc.stop(audioCtx.currentTime + index * 0.08 + 0.6);
+                });
+            } catch (e) {}
+        }
+
+        const btnPrimeiro = document.getElementById('btnPrimeiro');
+        const btnSegundo = document.getElementById('btnSegundo');
+
+        btnPrimeiro.addEventListener('click', function() {
+            this.classList.add('escondido');
+            btnSegundo.classList.remove('escondido');
+            btnSegundo.classList.add('visivel-flex');
+        });
+
+        btnSegundo.addEventListener('click', function() {
+            tocarSomMagico();
+            this.classList.add('escondido');
+            document.getElementById('textoContainer').classList.add('ativo');
+            digitarTexto();
+
+            const emojis = ['💙', '✨', '🪐'];
+            for (let i = 0; i < 24; i++) {
+                setTimeout(() => {
+                    const coracao = document.createElement('div');
+                    coracao.className = 'coracao-caindo';
+                    coracao.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                    coracao.style.left = Math.random() * 92 + 'vw';
+                    coracao.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(coracao);
+
+                    setTimeout(() => coracao.remove(), 3500);
+                }, i * 100);
+            }
+        });
+
+        function atualizarContador() {
+            const timerElem = document.getElementById('timer');
+            if (!timerElem) return;
+
+            const agora = new Date();
+            const diferenca = agora - dataInicio;
+
+            if (diferenca < 0) {
+                timerElem.innerText = "0 dias 00h 00m 00s";
+                return;
+            }
+
+            const dias = Math.floor(diferenca / 86400000);
+            const horas = Math.floor((diferenca % 86400000) / 3600000);
+            const minutos = Math.floor((diferenca % 3600000) / 60000);
+            const segundos = Math.floor((diferenca % 60000) / 1000);
+
+            const hStr = horas < 10 ? '0' + horas : horas;
+            const mStr = minutos < 10 ? '0' + minutos : minutos;
+            const sStr = segundos < 10 ? '0' + segundos : segundos;
+
+            timerElem.innerText = `${dias} dias ${hStr}h ${mStr}m ${sStr}s`;
+        }
+
+        setInterval(atualizarContador, 1000);
+        window.addEventListener('resize', ajustarCanvas);
+    </script>
+</body>
+</html>
